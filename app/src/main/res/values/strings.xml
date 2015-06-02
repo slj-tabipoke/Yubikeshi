@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Yubikeshi</string>
+    <string name="action_settings">Settings</string>
+    <string name="title">ゆびけし</string>
+    <string name="start">スタート</string>
+    <string name="ranking">ランキング</string>
+    <string name="setting">設定</string>
+    <string name="rankingTitle">ランキング</string>
+    <string name="rankingContent">ランキングだよ</string>
+    <string name="settingTitle">設定</string>
+    <string name="settingContent">設定だよ</string>
+</resources>
