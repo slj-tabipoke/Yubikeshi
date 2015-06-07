@@ -41,5 +41,16 @@
         android:text="@string/setting" />
 
 
+    // 広告バナー 最下部中央に配置
+    <jp.co.imobile.sdkads.android.ImobileInlineView
+        android:id="@+id/ads_bannar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        pid="34816"
+        mid="135179"
+        sid="342414"  />
+
 
 </RelativeLayout>

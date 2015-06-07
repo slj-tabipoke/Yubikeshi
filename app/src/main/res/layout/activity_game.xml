@@ -67,4 +67,14 @@
             android:layout_height="wrap_content"
             android:onClick="clickOppHand" />
     </LinearLayout>
+
+    // 広告バナー 最下部中央に配置
+    <jp.co.imobile.sdkads.android.ImobileInlineView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        pid="34816"
+        mid="135179"
+        sid="342414"  />
+
 </RelativeLayout>
