@@ -16,6 +16,7 @@ import android.view.View.OnClickListener;
 import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import java.util.Random;
 
 
 
@@ -25,14 +26,13 @@ public class MainActivity extends ActionBarActivity {
     public int moveCount = 0;
     public int attackCount = 0;
     public int handFirstClicked = 0; // 1=左　2=右
-    public boolean isMyTurn;
 
     public hand myLeftHand = new hand();
     public hand myRightHand = new hand();
     public hand oppLeftHand = new hand();
     public hand oppRightHand = new hand();
-
-
+    public opponent opp = new opponent();
+    public gameTimer timer = new gameTimer(10000, 1000);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class MainActivity extends ActionBarActivity {
                 layout.removeAllViews();
                 getLayoutInflater().inflate(R.layout.activity_game, layout);
                 break;
-            case R.id.ranking:
+/*            case R.id.ranking:
                 AlertDialog.Builder rankingDialog = new AlertDialog.Builder(this);
                 rankingDialog.setTitle(R.string.rankingTitle);
                 rankingDialog.setMessage(R.string.rankingContent);
@@ -94,6 +94,7 @@ public class MainActivity extends ActionBarActivity {
                 settingDialog.show();
 
                 break;
+*/
         }
     }
 
@@ -134,7 +135,8 @@ public class MainActivity extends ActionBarActivity {
                         handFirstClicked = 0;
                         moveCount = 0;
                         attackCount = 0;
-                        isMyTurn = false;
+                        timer.cancel();
+                        opp.action();
                     }
                 }
             }else if(view.getId() == R.id.MyRightHand){
@@ -159,7 +161,8 @@ public class MainActivity extends ActionBarActivity {
                         handFirstClicked = 0;
                         moveCount = 0;
                         attackCount = 0;
-                        isMyTurn = false;
+                        timer.cancel();
+                        opp.action();
                     }else if(handFirstClicked == 2){
                         moveCount++;
                         if(myRightHand.getFingerCount() == moveCount){
@@ -179,19 +182,42 @@ public class MainActivity extends ActionBarActivity {
                 attackCount = 0;
                 moveCount = 0;
                 firstClickCheck = false;
-                isMyTurn = false;
-
-                Button oL = (Button)findViewById(view.getId());
-                oL.setText(String.valueOf(oppLeftHand.getFingerCount()));
+                Button oL = (Button)findViewById(R.id.OppLeftHand);
+                timer.cancel();
+                if(oppLeftHand.getFingerCount() >= 5){
+                    oppLeftHand.die(3);
+                    oppLeftHand.setFingerCount(5);
+                    if(oppRightHand.getFingerCount() == 5){
+                        // プレイヤー勝利　continue処理
+                        game.continues();
+                        timer.cancel();
+                    }else{
+                        opp.action();
+                    }
+                }else{
+                    oL.setText(String.valueOf(oppLeftHand.getFingerCount()));
+                    opp.action();
+                }
             }else if(view.getId() == R.id.OppRightHand){
                 oppRightHand.setFingerCount(oppRightHand.getFingerCount() + attackCount);
                 attackCount = 0;
                 moveCount = 0;
                 firstClickCheck = false;
-                isMyTurn = false;
-
-                Button oR = (Button)findViewById(view.getId());
-                oR.setText(String.valueOf(oppRightHand.getFingerCount()));
+                Button oR = (Button)findViewById(R.id.OppRightHand);
+                timer.cancel();
+                if(oppRightHand.getFingerCount() >= 5){
+                    oppRightHand.die(4);
+                    oppRightHand.setFingerCount(5);
+                    if(oppLeftHand.getFingerCount() == 5){
+                        // プレイヤー勝利　continue処理
+                        game.continues();
+                        timer.cancel();
+                    }else{
+                        opp.action();
+                    }
+                }else{
+                    opp.action();
+                }
             }
         }
     }
@@ -204,7 +230,8 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onFinish(){
-            // カウントダウン完了後の処理　敗北時の処理
+            // カウントダウン完了後の処理　
+            game.over();
 
         }
 
@@ -220,11 +247,13 @@ public class MainActivity extends ActionBarActivity {
     public class game{
         public boolean isStarted = false;
 
-        public int winCount = 0;
-        public int whichHandFirstClicked = 0; // 1は左、2は右
+        // public int winCount = 0;
+        // public int whichHandFirstClicked = 0; // 1は左、2は右
 
         // ゲームを開始する
         public void start(){
+            this.isStarted = true;
+
             // startGameボタンを非表示にする
             Button startBtn = (Button)MainActivity.this.findViewById(R.id.startBtn);
             startBtn.setVisibility(View.INVISIBLE);
@@ -234,42 +263,127 @@ public class MainActivity extends ActionBarActivity {
             sv.setText("ゲーム中");
 
             // turnViewをセット
-            TextView tv = (TextView)findViewById(R.id.turnView);
-            tv.setText("あなたの番です");
+            // TextView tv = (TextView)findViewById(R.id.turnView);
+            // tv.setText("あなたの番です");
 
-            // timerViewをセットしカウントダウン開始
-            gameTimer cdt = new gameTimer(10000, 1000);
-            cdt.start();
+            // カウントダウン開始
+            timer.start();
 
-            // isStartedにtrueをセット、isMyTurnをtrueにしてプレイヤーの番から開始
-            isStarted = true;
-            isMyTurn = true;
+            attackCount = 0;
+            moveCount = 0;
+            firstClickCheck = false;
 
+            myLeftHand.setFingerCount(1);
+            myRightHand.setFingerCount(1);
+            oppLeftHand.setFingerCount(1);
+            oppRightHand.setFingerCount(1);
 
             // 手ボタンに指本数（1本）セット
             Button myL = (Button)findViewById(R.id.MyLeftHand);
             Button myR = (Button)findViewById(R.id.MyRightHand);
             Button oppL = (Button)findViewById(R.id.OppLeftHand);
             Button oppR = (Button)findViewById(R.id.OppRightHand);
-            myL.setText("1");
-            myR.setText("1");
-            oppL.setText("1");
-            oppR.setText("1");
+            myL.setText(String.valueOf(myLeftHand.getFingerCount()));
+            myR.setText(String.valueOf(myRightHand.getFingerCount()));
+            oppL.setText(String.valueOf(oppLeftHand.getFingerCount()));
+            oppR.setText(String.valueOf(oppRightHand.getFingerCount()));
 
         }
 
         // プレイヤーが勝ってゲーム続行するときの処理
         public void continues(){
+            // 勝ち抜き回数winCountに１足して他は初期化
+/* 継続処理はあとで
+            winCount++;
+            myLeftHand.setFingerCount(1);
+            myRightHand.setFingerCount(1);
+            oppLeftHand.setFingerCount(1);
+            oppRightHand.setFingerCount(1);
+            Button mL = (Button)findViewById(R.id.MyLeftHand);
+            Button mR = (Button)findViewById(R.id.MyRightHand);
+            Button oL = (Button)findViewById(R.id.OppLeftHand);
+            Button oR = (Button)findViewById(R.id.OppRightHand);
+            mL.setText("1");
+            mR.setText("1");
+            oL.setText("1");
+            oR.setText("1");
+            attackCount = 0;
+            moveCount = 0;
+*/
+            // 初期化
+            this.isStarted = false;
+            Button mL = (Button)findViewById(R.id.MyLeftHand);
+            Button mR = (Button)findViewById(R.id.MyRightHand);
+            Button oL = (Button)findViewById(R.id.OppLeftHand);
+            Button oR = (Button)findViewById(R.id.OppRightHand);
+            mL.setEnabled(true);
+            mL.setText(" ");
+            mR.setEnabled(true);
+            mR.setText(" ");
+            oL.setEnabled(true);
+            oL.setText(" ");
+            oR.setEnabled(true);
+            oR.setText(" ");
 
+            AlertDialog.Builder winDialog = new AlertDialog.Builder(MainActivity.this);
+            winDialog.setTitle("勝利！");
+            winDialog.setMessage("かちました");
+            winDialog.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int which){
+                    // okボタン処理
+                    Button startBtn = (Button)MainActivity.this.findViewById(R.id.startBtn);
+                    startBtn.setVisibility(View.VISIBLE);
+
+                    TextView sv = (TextView)findViewById(R.id.startView);
+                    sv.setText("  ");
+
+                    TextView tv = (TextView)findViewById(R.id.turnView);
+                    tv.setText("  ");
+                }
+            });
+            winDialog.show();
         }
 
         // ゲームが終了（プレイヤーが敗北）したときの処理
         public void over(){
+            // 初期化
+            timer.cancel();
+            this.isStarted = false;
 
+            Button mL = (Button)findViewById(R.id.MyLeftHand);
+            Button mR = (Button)findViewById(R.id.MyRightHand);
+            Button oL = (Button)findViewById(R.id.OppLeftHand);
+            Button oR = (Button)findViewById(R.id.OppRightHand);
+            mL.setEnabled(true);
+            mL.setText(" ");
+            mR.setEnabled(true);
+            mR.setText(" ");
+            oL.setEnabled(true);
+            oL.setText(" ");
+            oR.setEnabled(true);
+            oR.setText(" ");
+            // 勝ち抜き継続処理を作るまでの暫定処理　
+            AlertDialog.Builder loseDialog = new AlertDialog.Builder(MainActivity.this);
+            loseDialog.setTitle("敗北・・・");
+            loseDialog.setMessage("まけました");
+            loseDialog.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int which){
+                    // okボタン処理
+                    Button startBtn = (Button)MainActivity.this.findViewById(R.id.startBtn);
+                    startBtn.setVisibility(View.VISIBLE);
+
+                    TextView sv = (TextView)findViewById(R.id.startView);
+                    sv.setText("  ");
+
+                    TextView tv = (TextView)findViewById(R.id.turnView);
+                    tv.setText("  ");
+                }
+            });
+            loseDialog.show();
         }
     }
 
-    // 指の本数を計算するクラス
+    // 指の本数を制御するクラス
     public class hand{
         public int fingerCount = 1; // 実際の指の本数
 
@@ -284,10 +398,182 @@ public class MainActivity extends ActionBarActivity {
         }
 
         // 本数が5本を超えたら操作できないようにする
-        public void die(){
-
+        public void die(int hand){
+            switch(hand){
+                case 1: // プレイヤー左手
+                    Button mL = (Button)findViewById(R.id.MyLeftHand);
+                    mL.setText("死亡");
+                    mL.setEnabled(false);
+                    break;
+                case 2: // プレイヤー右手
+                    Button mR = (Button)findViewById(R.id.MyRightHand);
+                    mR.setText("死亡");
+                    mR.setEnabled(false);
+                    break;
+                case 3: // 敵左手
+                    Button oL = (Button)findViewById(R.id.OppLeftHand);
+                    oL.setText("死亡");
+                    oL.setEnabled(false);
+                    break;
+                case 4: // 敵右手
+                    Button oR = (Button)findViewById(R.id.OppRightHand);
+                    oR.setText("死亡");
+                    oR.setEnabled(false);
+                    break;
+            }
         }
+    }
+
+    // 敵の行動を処理するクラス
+    public class opponent{
+        public void action(){
+            try {
+                Thread.sleep(1500);
+            }catch(InterruptedException e){
+
+            }
+            // ランダムに生成された値に対応する行動パターンを敵のターンの行動として実行する
+            // 0 => プレイヤーに攻撃（敵の左手からプレイヤーの左手へ）
+            // 1 => プレイヤーに攻撃（敵の左手からプレイヤーの右手へ）
+            // 2 => プレイヤーに攻撃（敵の右手からプレイヤーの左手へ）
+            // 3 => プレイヤーに攻撃（敵の右手からプレイヤーの右手へ）
+            // 4 => 右手から左手に指を移す（右手が１本の時は右手からプレイヤーに攻撃）
+            // 5 => 左手から右手に指を移す（左手が１本の時は左手からプレイヤーに攻撃）
+            Random r = new Random();
+            int n = r.nextInt(6);
+
+            if(oppLeftHand.getFingerCount() == 5){
+                if(n != 2 && n != 3){
+                    n = r.nextInt(2) + 2;
+                }
+            }else if(oppRightHand.getFingerCount() == 5){
+                if(n != 0 && n != 1){
+                    n = r.nextInt(2);
+                }
+            }
+            switch(n){
+                case 0:
+                    if(oppLeftHand.getFingerCount() != 5) {
+                        myLeftHand.setFingerCount(myLeftHand.getFingerCount() + oppLeftHand.getFingerCount());
+                        if (myLeftHand.getFingerCount() >= 5) {
+                            myLeftHand.die(1);
+                            myLeftHand.setFingerCount(5);
+                            if (myRightHand.getFingerCount() == 5) {
+                                // プレイヤー敗北処理
+                                game.over();
+                            }
+                        }
+                    }
+                    break;
+                case 1:
+                    myRightHand.setFingerCount(myRightHand.getFingerCount() + oppLeftHand.getFingerCount());
+                    if(myRightHand.getFingerCount() >= 5){
+                        myRightHand.die(2);
+                        myRightHand.setFingerCount(5);
+                        if(myLeftHand.getFingerCount() == 5){
+                            // プレイヤー敗北処理
+                            game.over();
+                        }
+                    }
+                    break;
+                case 2:
+                    myLeftHand.setFingerCount(myLeftHand.getFingerCount() + oppRightHand.getFingerCount());
+                    if(myLeftHand.getFingerCount() >= 5){
+                        myLeftHand.die(1);
+                        myLeftHand.setFingerCount(5);
+                        if(myRightHand.getFingerCount() == 5){
+                            // プレイヤー敗北処理
+                            game.over();
+                        }
+                    }
+                    break;
+                case 3:
+                    myRightHand.setFingerCount(myRightHand.getFingerCount() + oppRightHand.getFingerCount());
+                    if(myRightHand.getFingerCount() >= 5){
+                        myRightHand.die(2);
+                        myRightHand.setFingerCount(5);
+                        if(myLeftHand.getFingerCount() == 5){
+                            // プレイヤー敗北処理
+                            game.over();
+                        }
+                    }
+                    break;
+                case 4:
+                    if(oppRightHand.getFingerCount() == 1){
+                        int na = r.nextInt(2);
+                        switch(na){
+                            case 0:
+                                myLeftHand.setFingerCount(myLeftHand.getFingerCount() + oppRightHand.getFingerCount());
+                                if(myLeftHand.getFingerCount() >= 5){
+                                    myLeftHand.die(1);
+                                    myLeftHand.setFingerCount(5);
+                                    if(myRightHand.getFingerCount() == 5){
+                                        // プレイヤー敗北処理
+                                        game.over();
+                                    }
+                                }
+                                break;
+                            case 1:
+                                myRightHand.setFingerCount(myRightHand.getFingerCount() + oppRightHand.getFingerCount());
+                                if(myRightHand.getFingerCount() >= 5){
+                                    myRightHand.die(2);
+                                    myRightHand.setFingerCount(5);
+                                    if(myLeftHand.getFingerCount() == 5){
+                                        // プレイヤー敗北処理
+                                        game.over();
+                                    }
+                                }
+                                break;
+                        }
+                    }else{
+                        oppLeftHand.setFingerCount(oppLeftHand.getFingerCount() + 1);
+                        oppRightHand.setFingerCount(oppRightHand.getFingerCount() - 1);
+                    }
+                    break;
+                case 5:
+                    if(oppLeftHand.getFingerCount() == 1){
+                        int na = r.nextInt(2);
+                        switch(na){
+                            case 0:
+                                myRightHand.setFingerCount(myRightHand.getFingerCount() + oppLeftHand.getFingerCount());
+                                if(myRightHand.getFingerCount() >= 5){
+                                    myRightHand.die(1);
+                                    myRightHand.setFingerCount(5);
+                                    if(myLeftHand.getFingerCount() == 5){
+                                        // プレイヤー敗北処理
+                                        game.over();
+                                    }
+                                }
+                                break;
+                            case 1:
+                                myLeftHand.setFingerCount(myLeftHand.getFingerCount() + oppLeftHand.getFingerCount());
+                                if(myLeftHand.getFingerCount() >= 5){
+                                    myLeftHand.die(2);
+                                    myLeftHand.setFingerCount(5);
+                                    if(myRightHand.getFingerCount() == 5){
+                                        // プレイヤー敗北処理
+                                        game.over();
+                                    }
+                                }
+                                break;
+                        }
+                    }else{
+                        oppRightHand.setFingerCount(oppLeftHand.getFingerCount() + 1);
+                        oppLeftHand.setFingerCount(oppRightHand.getFingerCount() - 1);
+                    }
+                    break;
+            }
+            Button mL = (Button)findViewById(R.id.MyLeftHand);
+            Button mR = (Button)findViewById(R.id.MyRightHand);
+            Button oL = (Button)findViewById(R.id.OppLeftHand);
+            Button oR = (Button)findViewById(R.id.OppRightHand);
+            mL.setText(String.valueOf(myLeftHand.getFingerCount()));
+            mR.setText(String.valueOf(myRightHand.getFingerCount()));
+            oL.setText(String.valueOf(oppLeftHand.getFingerCount()));
+            oR.setText(String.valueOf(oppRightHand.getFingerCount()));
 
 
+            timer.start();
+        }
     }
 }

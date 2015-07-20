@@ -23,9 +23,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_above="@+id/ranking"
+        android:layout_above="@+id/ad_bannar"
+        android:layout_marginBottom="30dp"
         android:onClick="clickTopButton"
         android:text="@string/start" />
+<!--
     <Button
         android:id="@+id/ranking"
         android:layout_width="wrap_content"
@@ -43,7 +45,7 @@
         android:layout_marginBottom="20dp"
         android:onClick="clickTopButton"
         android:text="@string/setting" />
-
+-->
 
     // 広告バナー 最下部中央に配置
     <jp.co.imobile.sdkads.android.ImobileInlineView
