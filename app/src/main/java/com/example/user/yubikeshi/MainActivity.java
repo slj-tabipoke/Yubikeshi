@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface;
 import android.view.View.OnClickListener;
 import android.view.LayoutInflater;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import java.util.Random;
@@ -107,9 +108,9 @@ public class MainActivity extends ActionBarActivity {
 
     // 自分の手をクリックしたとき
     public void clickMyHand(View view){
-        if(game.isStarted == true){
+        if(game.isStarted){
             if(view.getId() == R.id.MyLeftHand){
-                if(firstClickCheck == false) {
+                if(!firstClickCheck) {
                     firstClickCheck = true;
                     handFirstClicked = 1;
                     moveCount++;
@@ -126,11 +127,9 @@ public class MainActivity extends ActionBarActivity {
                     }else if(handFirstClicked == 2){
                         myLeftHand.setFingerCount(myLeftHand.getFingerCount() + moveCount);
                         myRightHand.setFingerCount(myRightHand.getFingerCount() - moveCount);
+                        myLeftHand.changeImage(myLeftHand.getFingerCount(), 1);
+                        myRightHand.changeImage(myRightHand.getFingerCount(), 2);
 
-                        Button mL = (Button)findViewById(R.id.MyLeftHand);
-                        Button mR = (Button)findViewById(R.id.MyRightHand);
-                        mL.setText(String.valueOf(myLeftHand.getFingerCount()));
-                        mR.setText(String.valueOf(myRightHand.getFingerCount()));
                         firstClickCheck = false;
                         handFirstClicked = 0;
                         moveCount = 0;
@@ -152,11 +151,9 @@ public class MainActivity extends ActionBarActivity {
                     if(handFirstClicked == 1){
                         myRightHand.setFingerCount(myRightHand.getFingerCount() + moveCount);
                         myLeftHand.setFingerCount(myLeftHand.getFingerCount() - moveCount);
+                        myLeftHand.changeImage(myLeftHand.getFingerCount(), 1);
+                        myRightHand.changeImage(myRightHand.getFingerCount(), 2);
 
-                        Button mL = (Button)findViewById(R.id.MyLeftHand);
-                        Button mR = (Button)findViewById(R.id.MyRightHand);
-                        mL.setText(String.valueOf(myLeftHand.getFingerCount()));
-                        mR.setText(String.valueOf(myRightHand.getFingerCount()));
                         firstClickCheck = false;
                         handFirstClicked = 0;
                         moveCount = 0;
@@ -182,11 +179,11 @@ public class MainActivity extends ActionBarActivity {
                 attackCount = 0;
                 moveCount = 0;
                 firstClickCheck = false;
-                Button oL = (Button)findViewById(R.id.OppLeftHand);
+
                 timer.cancel();
                 if(oppLeftHand.getFingerCount() >= 5){
-                    oppLeftHand.die(3);
                     oppLeftHand.setFingerCount(5);
+                    oppLeftHand.changeImage(oppLeftHand.getFingerCount(), 3);
                     if(oppRightHand.getFingerCount() == 5){
                         // プレイヤー勝利　continue処理
                         game.continues();
@@ -195,7 +192,7 @@ public class MainActivity extends ActionBarActivity {
                         opp.action();
                     }
                 }else{
-                    oL.setText(String.valueOf(oppLeftHand.getFingerCount()));
+
                     opp.action();
                 }
             }else if(view.getId() == R.id.OppRightHand){
@@ -279,14 +276,14 @@ public class MainActivity extends ActionBarActivity {
             oppRightHand.setFingerCount(1);
 
             // 手ボタンに指本数（1本）セット
-            Button myL = (Button)findViewById(R.id.MyLeftHand);
-            Button myR = (Button)findViewById(R.id.MyRightHand);
-            Button oppL = (Button)findViewById(R.id.OppLeftHand);
-            Button oppR = (Button)findViewById(R.id.OppRightHand);
-            myL.setText(String.valueOf(myLeftHand.getFingerCount()));
-            myR.setText(String.valueOf(myRightHand.getFingerCount()));
-            oppL.setText(String.valueOf(oppLeftHand.getFingerCount()));
-            oppR.setText(String.valueOf(oppRightHand.getFingerCount()));
+            ImageButton myL = (ImageButton)findViewById(R.id.MyLeftHand);
+            ImageButton myR = (ImageButton)findViewById(R.id.MyRightHand);
+            ImageButton oppL = (ImageButton)findViewById(R.id.OppLeftHand);
+            ImageButton oppR = (ImageButton)findViewById(R.id.OppRightHand);
+            myL.setImageResource(R.drawable.hand_one);
+            myR.setImageResource(R.drawable.hand_one);
+            oppL.setImageResource(R.drawable.hand_one);
+            oppR.setImageResource(R.drawable.hand_one);
 
         }
 
@@ -312,18 +309,7 @@ public class MainActivity extends ActionBarActivity {
 */
             // 初期化
             this.isStarted = false;
-            Button mL = (Button)findViewById(R.id.MyLeftHand);
-            Button mR = (Button)findViewById(R.id.MyRightHand);
-            Button oL = (Button)findViewById(R.id.OppLeftHand);
-            Button oR = (Button)findViewById(R.id.OppRightHand);
-            mL.setEnabled(true);
-            mL.setText(" ");
-            mR.setEnabled(true);
-            mR.setText(" ");
-            oL.setEnabled(true);
-            oL.setText(" ");
-            oR.setEnabled(true);
-            oR.setText(" ");
+
 
             AlertDialog.Builder winDialog = new AlertDialog.Builder(MainActivity.this);
             winDialog.setTitle("勝利！");
@@ -350,18 +336,6 @@ public class MainActivity extends ActionBarActivity {
             timer.cancel();
             this.isStarted = false;
 
-            Button mL = (Button)findViewById(R.id.MyLeftHand);
-            Button mR = (Button)findViewById(R.id.MyRightHand);
-            Button oL = (Button)findViewById(R.id.OppLeftHand);
-            Button oR = (Button)findViewById(R.id.OppRightHand);
-            mL.setEnabled(true);
-            mL.setText(" ");
-            mR.setEnabled(true);
-            mR.setText(" ");
-            oL.setEnabled(true);
-            oL.setText(" ");
-            oR.setEnabled(true);
-            oR.setText(" ");
             // 勝ち抜き継続処理を作るまでの暫定処理　
             AlertDialog.Builder loseDialog = new AlertDialog.Builder(MainActivity.this);
             loseDialog.setTitle("敗北・・・");
@@ -397,27 +371,106 @@ public class MainActivity extends ActionBarActivity {
             return this.fingerCount;
         }
 
+        public void changeImage(int numFinger, int handPosition){
+            switch(handPosition){
+                case 1:
+                    if(numFinger == 1){
+                        ImageButton mL = (ImageButton)findViewById(R.id.MyLeftHand);
+                        mL.setImageResource(R.drawable.hand_one);
+                    }else if(numFinger == 2){
+                        ImageButton mL = (ImageButton)findViewById(R.id.MyLeftHand);
+                        mL.setImageResource(R.drawable.hand_two);
+                    }else if(numFinger == 3){
+                        ImageButton mL = (ImageButton)findViewById(R.id.MyLeftHand);
+                        mL.setImageResource(R.drawable.hand_three);
+                    }else if(numFinger == 4){
+                        ImageButton mL = (ImageButton)findViewById(R.id.MyLeftHand);
+                        mL.setImageResource(R.drawable.hand_four);
+                    }else if(numFinger == 5){
+                        ImageButton mL = (ImageButton)findViewById(R.id.MyLeftHand);
+                        mL.setImageResource(R.drawable.hand_dead);
+                    }
+                    break;
+                case 2:
+                    if(numFinger == 1){
+                        ImageButton mR = (ImageButton)findViewById(R.id.MyRightHand);
+                        mR.setImageResource(R.drawable.hand_one);
+                    }else if(numFinger == 2){
+                        ImageButton mR = (ImageButton)findViewById(R.id.MyRightHand);
+                        mR.setImageResource(R.drawable.hand_two);
+                    }else if(numFinger == 3){
+                        ImageButton mR = (ImageButton)findViewById(R.id.MyRightHand);
+                        mR.setImageResource(R.drawable.hand_three);
+                    }else if(numFinger == 4){
+                        ImageButton mR = (ImageButton)findViewById(R.id.MyRightHand);
+                        mR.setImageResource(R.drawable.hand_four);
+                    }else if(numFinger == 5){
+                        ImageButton mR = (ImageButton)findViewById(R.id.MyRightHand);
+                        mR.setImageResource(R.drawable.hand_dead);
+                    }
+                    break;
+                case 3:
+                    if(numFinger == 1){
+                        ImageButton oL = (ImageButton)findViewById(R.id.OppLeftHand);
+                        oL.setImageResource(R.drawable.hand_one);
+                    }else if(numFinger == 2){
+                        ImageButton oL = (ImageButton)findViewById(R.id.OppLeftHand);
+                        oL.setImageResource(R.drawable.hand_two);
+                    }else if(numFinger == 3){
+                        ImageButton oL = (ImageButton)findViewById(R.id.OppLeftHand);
+                        oL.setImageResource(R.drawable.hand_three);
+                    }else if(numFinger == 4){
+                        ImageButton oL = (ImageButton)findViewById(R.id.OppLeftHand);
+                        oL.setImageResource(R.drawable.hand_four);
+                    }else if(numFinger == 5){
+                        ImageButton oL = (ImageButton)findViewById(R.id.OppLeftHand);
+                        oL.setImageResource(R.drawable.hand_dead);
+                    }
+                    break;
+                case 4:
+                    if(numFinger == 1){
+                        ImageButton oR = (ImageButton)findViewById(R.id.OppRightHand);
+                        oR.setImageResource(R.drawable.hand_one);
+                    }else if(numFinger == 2){
+                        ImageButton oR = (ImageButton)findViewById(R.id.OppRightHand);
+                        oR.setImageResource(R.drawable.hand_two);
+                    }else if(numFinger == 3){
+                        ImageButton oR = (ImageButton)findViewById(R.id.OppRightHand);
+                        oR.setImageResource(R.drawable.hand_three);
+                    }else if(numFinger == 4){
+                        ImageButton oR = (ImageButton)findViewById(R.id.OppRightHand);
+                        oR.setImageResource(R.drawable.hand_four);
+                    }else if(numFinger == 5){
+                        ImageButton oR = (ImageButton)findViewById(R.id.OppRightHand);
+                        oR.setImageResource(R.drawable.hand_dead);
+                    }
+                    break;
+
+
+            }
+        }
+
         // 本数が5本を超えたら操作できないようにする
         public void die(int hand){
             switch(hand){
                 case 1: // プレイヤー左手
-                    Button mL = (Button)findViewById(R.id.MyLeftHand);
-                    mL.setText("死亡");
+                    ImageButton mL = (ImageButton)findViewById(R.id.MyLeftHand);
+                    mL.setImageResource(R.drawable.hand_dead);
                     mL.setEnabled(false);
                     break;
                 case 2: // プレイヤー右手
-                    Button mR = (Button)findViewById(R.id.MyRightHand);
-                    mR.setText("死亡");
+                    ImageButton mR = (ImageButton)findViewById(R.id.MyRightHand);
+                    mR.setImageResource(R.drawable.hand_dead);
                     mR.setEnabled(false);
                     break;
                 case 3: // 敵左手
-                    Button oL = (Button)findViewById(R.id.OppLeftHand);
-                    oL.setText("死亡");
+                    ImageButton oL = (ImageButton)findViewById(R.id.OppLeftHand);
+                    oL.setImageResource(R.drawable.hand_dead);
                     oL.setEnabled(false);
                     break;
                 case 4: // 敵右手
-                    Button oR = (Button)findViewById(R.id.OppRightHand);
-                    oR.setText("死亡");
+                    ImageButton oR = (ImageButton)findViewById(R.id.OppRightHand);
+                    oR.setImageResource(R.drawable.hand_dead);
                     oR.setEnabled(false);
                     break;
             }
