@@ -99,7 +99,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    // ボタンのクリックメソッド
+    // スタートボタンのクリック処理
 
     public void clickStartBtn(View view){
         game.start();
@@ -176,6 +176,7 @@ public class MainActivity extends ActionBarActivity {
         if(firstClickCheck == true){
             if(view.getId() == R.id.OppLeftHand){
                 oppLeftHand.setFingerCount(oppLeftHand.getFingerCount() + attackCount);
+                oppLeftHand.changeImage(oppLeftHand.getFingerCount(), 3);
                 attackCount = 0;
                 moveCount = 0;
                 firstClickCheck = false;
@@ -183,6 +184,7 @@ public class MainActivity extends ActionBarActivity {
                 timer.cancel();
                 if(oppLeftHand.getFingerCount() >= 5){
                     oppLeftHand.setFingerCount(5);
+                    oppLeftHand.die(3);
                     oppLeftHand.changeImage(oppLeftHand.getFingerCount(), 3);
                     if(oppRightHand.getFingerCount() == 5){
                         // プレイヤー勝利　continue処理
@@ -197,14 +199,16 @@ public class MainActivity extends ActionBarActivity {
                 }
             }else if(view.getId() == R.id.OppRightHand){
                 oppRightHand.setFingerCount(oppRightHand.getFingerCount() + attackCount);
+                oppRightHand.changeImage(oppRightHand.getFingerCount(), 4);
                 attackCount = 0;
                 moveCount = 0;
                 firstClickCheck = false;
                 Button oR = (Button)findViewById(R.id.OppRightHand);
                 timer.cancel();
                 if(oppRightHand.getFingerCount() >= 5){
-                    oppRightHand.die(4);
                     oppRightHand.setFingerCount(5);
+                    oppRightHand.die(4);
+                    oppRightHand.changeImage(oppRightHand.getFingerCount(), 4);
                     if(oppLeftHand.getFingerCount() == 5){
                         // プレイヤー勝利　continue処理
                         game.continues();
@@ -455,22 +459,18 @@ public class MainActivity extends ActionBarActivity {
             switch(hand){
                 case 1: // プレイヤー左手
                     ImageButton mL = (ImageButton)findViewById(R.id.MyLeftHand);
-                    mL.setImageResource(R.drawable.hand_dead);
                     mL.setEnabled(false);
                     break;
                 case 2: // プレイヤー右手
                     ImageButton mR = (ImageButton)findViewById(R.id.MyRightHand);
-                    mR.setImageResource(R.drawable.hand_dead);
                     mR.setEnabled(false);
                     break;
                 case 3: // 敵左手
                     ImageButton oL = (ImageButton)findViewById(R.id.OppLeftHand);
-                    oL.setImageResource(R.drawable.hand_dead);
                     oL.setEnabled(false);
                     break;
                 case 4: // 敵右手
                     ImageButton oR = (ImageButton)findViewById(R.id.OppRightHand);
-                    oR.setImageResource(R.drawable.hand_dead);
                     oR.setEnabled(false);
                     break;
             }
@@ -508,9 +508,11 @@ public class MainActivity extends ActionBarActivity {
                 case 0:
                     if(oppLeftHand.getFingerCount() != 5) {
                         myLeftHand.setFingerCount(myLeftHand.getFingerCount() + oppLeftHand.getFingerCount());
+
                         if (myLeftHand.getFingerCount() >= 5) {
                             myLeftHand.die(1);
                             myLeftHand.setFingerCount(5);
+
                             if (myRightHand.getFingerCount() == 5) {
                                 // プレイヤー敗北処理
                                 game.over();
@@ -616,15 +618,11 @@ public class MainActivity extends ActionBarActivity {
                     }
                     break;
             }
-            Button mL = (Button)findViewById(R.id.MyLeftHand);
-            Button mR = (Button)findViewById(R.id.MyRightHand);
-            Button oL = (Button)findViewById(R.id.OppLeftHand);
-            Button oR = (Button)findViewById(R.id.OppRightHand);
-            mL.setText(String.valueOf(myLeftHand.getFingerCount()));
-            mR.setText(String.valueOf(myRightHand.getFingerCount()));
-            oL.setText(String.valueOf(oppLeftHand.getFingerCount()));
-            oR.setText(String.valueOf(oppRightHand.getFingerCount()));
 
+            myLeftHand.changeImage(myLeftHand.getFingerCount(), 1);
+            myRightHand.changeImage(myRightHand.getFingerCount(), 2);
+            oppLeftHand.changeImage(oppLeftHand.getFingerCount(), 3);
+            oppRightHand.changeImage(oppRightHand.getFingerCount(), 4);
 
             timer.start();
         }
