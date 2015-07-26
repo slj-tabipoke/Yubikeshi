@@ -37,7 +37,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true" >
+        android:layout_alignParentLeft="true"
+        android:gravity="left">
 
 
 
@@ -45,6 +46,7 @@
             android:id="@+id/MyLeftHand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
             android:background="#00000000"
             android:src="@drawable/hand_one"
             android:onClick="clickMyHand" />
@@ -52,6 +54,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
             android:background="#00000000"
             android:src="@drawable/player" />
 
@@ -60,6 +63,7 @@
             android:id="@+id/MyRightHand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
             android:background="#00000000"
             android:src="@drawable/hand_one"
             android:onClick="clickMyHand" />
@@ -70,7 +74,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_centerVertical="true"
-        android:layout_alignParentRight="true" >
+        android:layout_alignParentRight="true"
+        android:gravity="right">
 
 
 
@@ -78,6 +83,7 @@
             android:id="@+id/OppRightHand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="30dp"
             android:background="#00000000"
             android:src="@drawable/hand_one"
             android:onClick="clickOppHand" />
@@ -85,13 +91,15 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="0dp"
             android:background="#00000000"
-            android:src="@drawable/hand_one" />
+            android:src="@drawable/opponent" />
 
         <ImageButton
             android:id="@+id/OppLeftHand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="30dp"
             android:background="#00000000"
             android:src="@drawable/hand_one"
             android:onClick="clickOppHand" />

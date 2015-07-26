@@ -203,7 +203,6 @@ public class MainActivity extends ActionBarActivity {
                 attackCount = 0;
                 moveCount = 0;
                 firstClickCheck = false;
-                Button oR = (Button)findViewById(R.id.OppRightHand);
                 timer.cancel();
                 if(oppRightHand.getFingerCount() >= 5){
                     oppRightHand.setFingerCount(5);
@@ -288,6 +287,10 @@ public class MainActivity extends ActionBarActivity {
             myR.setImageResource(R.drawable.hand_one);
             oppL.setImageResource(R.drawable.hand_one);
             oppR.setImageResource(R.drawable.hand_one);
+            myL.setEnabled(true);
+            myR.setEnabled(true);
+            oppL.setEnabled(true);
+            oppR.setEnabled(true);
 
         }
 
